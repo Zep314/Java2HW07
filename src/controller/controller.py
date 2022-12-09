@@ -1,6 +1,6 @@
 #from src.view.view import Viewer
 #from src.data.data import Data
-
+#
 
 class Controller:
     # Контроллер - тут все происходит
