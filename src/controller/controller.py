@@ -1,16 +1,70 @@
-#from src.view.view import Viewer
-#from src.data.data import Data
-#
+import random
+
+from src.model.model import Board
+from src.view.view import View
+from src.ai.ai import Ai
+
 
 class Controller:
     # Контроллер - тут все происходит
-#    viewer = Viewer()
-#    data = Data()
 
-    def __init__(self):
-        pass
+    def __init__(self):  # Конструктор
+        self._viewer = View()
+        self._ai = Ai()
 
-    def run(self):
-        print("Hi from Reversi!")
+    def whoGoesFirst(self): # Выбор, кто будет ходить первым
+        if random.randint(0, 1) == 0: # Выбор - рандомный
+            return 'computer'
+        else:
+            return 'player'
 
-# https://inventwithpython.com/chapter15.html
+    def run(self):  # Основной метод контроллера
+        self._viewer.hi()
+        ex = False
+        while not ex:
+            mainBoard = Board()
+            mainBoard.resetBoard()
+            playerTile, computerTile = self._viewer.enterPlayerTile() # Выбор, кто за кого будет играть
+            turn = self.whoGoesFirst() # Тут рандом!
+            self._viewer.printFirstTurn(turn)
+            endGame = False
+            while not endGame:
+                if turn == 'player':
+                    # Ходит человек
+                    if self._viewer.showHints:
+                        validMoves = mainBoard.getValidMoves(playerTile) # Включаем подсказки
+                        self._viewer.drawBoard(mainBoard, validMoves)
+                    else:
+                        self._viewer.drawBoard(mainBoard)
+                    self._viewer.showPoints(mainBoard, playerTile, computerTile) # счет игры
+                    move = self._viewer.getPlayerMove(mainBoard, playerTile)
+                    if move == 'quit':
+                        print('Thanks for playing!')
+                        endGame = True
+                        ex = True
+                    elif move == 'hints':
+                        self._viewer.showHints = not self._viewer.showHints
+                        continue
+                    else:
+                        mainBoard.makeMove(playerTile, move[0], move[1]) # Записываем ход игрока на доску
+                    if mainBoard.getValidMoves(computerTile) == []: # Если ходы кончились
+                        endGame = True
+                    else:
+                        turn = 'computer'
+                else:  # Ход компьютера
+                    self._viewer.drawBoard(mainBoard)
+                    self._viewer.showPoints(mainBoard, playerTile, computerTile)
+                    input('Нажмите Enter чтобы увидеть ход компьютера.')
+                    x, y = self._ai.getComputerMove(mainBoard, computerTile) # Тут ИИ нам выдаст мощный ход!
+                    mainBoard.makeMove(computerTile, x, y)  # записываем ход на доску
+                    if mainBoard.getValidMoves(computerTile) == []: # Если ходы кончились
+                        endGame = True
+                    else:
+                        turn = 'player'
+
+            # Display the final score.
+            self._viewer.drawBoard(mainBoard)
+            self._viewer.drawFinelResults(mainBoard, playerTile, computerTile)
+            if not self._viewer.playAgain():
+                ex = True
+        self._viewer.buy()
