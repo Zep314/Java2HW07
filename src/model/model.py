@@ -15,9 +15,7 @@ class Board:
 
     def resetBoard(self):
         # Очищаем доску
-        for x in range(8):
-            for y in range(8):
-                self._board[x][y] = ' '
+        self._board = [[' ' for j in range(8)] for i in range(8)]
 
         # И устанавливаем начальную позицию для игры
         self._board[3][3] = 'X'
@@ -29,25 +27,23 @@ class Board:
         return self._board[:][:]
 
     def getValidMoves(self,tile):
-        # Returns a list of [x,y] lists of valid moves for the given player on the given board.
         # Возвращаем список [x, y] - таких списков, куда возможно сходить
         validMoves = []
 
         for x in range(8):
             for y in range(8):
-                if self.isValidMove(tile, x, y) != False:
+                if self.isValidMove(tile, x, y):
                     validMoves.append([x, y])
         return validMoves
+#        return [[[x,y] for y in range(8) if self.isValidMove(tile, x, y)] for x in range(8)]
 
     def isValidMove(self, tile, xStart, yStart):
-        # Returns False if the player's move on space xstart, ystart is invalid.
-        # If it is a valid move, returns a list of spaces that would become the player's if they made a move here.
-        # Возвращаем False, если ход неравильный
-        # Если ход правильный - возвращаем !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        # Возвращаем False, если ход неправильный
+        # Если ход правильный - возвращаем список клеток, которые надо будет перевернуть
         if self._board[xStart][yStart] != ' ' or not self.isOnBoard(xStart, yStart):
             return False
 
-        self._board[xStart][yStart] = tile  # temporarily set the tile on the board.
+        self._board[xStart][yStart] = tile  # временно ставим символ на доску
 
         if tile == 'X':
             otherTile = 'O'
@@ -55,50 +51,53 @@ class Board:
             otherTile = 'X'
 
         tilesToFlip = []
-        for xdirection, ydirection in [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]:
+        for xDirection, yDirection in [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]]:
+            # ходим во все стороны от текущей клетки доски
             x, y = xStart, yStart
-            x += xdirection  # first step in the direction
-            y += ydirection  # first step in the direction
+            x += xDirection  # первый шаг
+            y += yDirection
             if self.isOnBoard(x, y) and self._board[x][y] == otherTile:
-                # There is a piece belonging to the other player next to our piece.
-                x += xdirection
-                y += ydirection
+                # Рядом с нашим ходом находится клетка, занятая противником.
+                x += xDirection
+                y += yDirection
                 if not self.isOnBoard(x, y):
                     continue
                 while self._board[x][y] == otherTile:
-                    x += xdirection
-                    y += ydirection
-                    if not self.isOnBoard(x, y):  # break out of while loop, then continue in for loop
+                    x += xDirection
+                    y += yDirection
+                    if not self.isOnBoard(x, y):
                         break
                 if not self.isOnBoard(x, y):
                     continue
                 if self._board[x][y] == tile:
-                    # There are pieces to flip over. Go in the reverse direction until we reach the original space, noting all the tiles along the way.
+                    # Есть клетки, которые надо перевернуть. Идем назад, пока не достигнем исходной клетки,
+                    # отмечая их по пути
                     while True:
-                        x -= xdirection
-                        y -= ydirection
+                        x -= xDirection
+                        y -= yDirection
                         if x == xStart and y == yStart:
                             break
                         tilesToFlip.append([x, y])
 
-        self._board[xStart][yStart] = ' '  # restore the empty space
-        if len(tilesToFlip) == 0:  # If no tiles were flipped, this is not a valid move.
+        self._board[xStart][yStart] = ' '  # возвращаем запомененное ранее место
+        if len(tilesToFlip) == 0:  # если не нашли ничего, что можно перевернуть - то вернем False
             return False
         return tilesToFlip
 
     def isOnBoard(self, x, y):
-        # Returns True if the coordinates are located on the board.
-        return x >= 0 and x <= 7 and y >= 0 and y <= 7
+        # True - если координаты находятся внутри доски
+        return 0 <= x <= 7 and 0 <= y <= 7
 
     def isOnCorner(self, x, y):
-        # Returns True if the position is in one of the four corners.
+        # True - если координаты принадлежат какому-либо из 4-х углов
         return (x == 0 and y == 0) or (x == 7 and y == 0) or (x == 0 and y == 7) or (x == 7 and y == 7)
 
     def getElement(self, x ,y):
+        # возвращаем значение одной ячейки доски
         return self._board[x][y]
 
     def getScoreOfBoard(self):
-        # Determine the score by counting the tiles. Returns a dictionary with keys 'X' and 'O'.
+        # Считаем текущий счет игры. Возвращаем словарь с ключами 'X' и 'O'.
         xScore = 0
         oScore = 0
         for x in range(8):
@@ -110,8 +109,7 @@ class Board:
         return {'X': xScore, 'O': oScore}
 
     def makeMove(self, tile, xStart, yStart):
-        # Place the tile on the board at xstart, ystart, and flip any of the opponent's pieces.
-        # Returns False if this is an invalid move, True if it is valid.
+        # Делаем ход на доске, переворачивая чужие клетки. Возвращаем False - если ход неверный
 
         tilesToFlip = self.isValidMove(tile, xStart, yStart)
 

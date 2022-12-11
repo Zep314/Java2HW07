@@ -23,7 +23,8 @@ class Controller:
         ex = False
         while not ex:
             mainBoard = Board()
-            mainBoard.resetBoard()
+            mainBoard.resetBoard()  # это если вдруг играем не первый раз -
+                                    # надо очистить доску от предыдущей игры
             playerTile, computerTile = self._viewer.enterPlayerTile() # Выбор, кто за кого будет играть
             turn = self.whoGoesFirst() # Тут рандом!
             self._viewer.printFirstTurn(turn)
@@ -39,9 +40,10 @@ class Controller:
                     self._viewer.showPoints(mainBoard, playerTile, computerTile) # счет игры
                     move = self._viewer.getPlayerMove(mainBoard, playerTile)
                     if move == 'quit':
-                        print('Thanks for playing!')
                         endGame = True
                         ex = True
+                        self._viewer.buy()
+                        continue
                     elif move == 'hints':
                         self._viewer.showHints = not self._viewer.showHints
                         continue
@@ -54,7 +56,7 @@ class Controller:
                 else:  # Ход компьютера
                     self._viewer.drawBoard(mainBoard)
                     self._viewer.showPoints(mainBoard, playerTile, computerTile)
-                    input('Нажмите Enter чтобы увидеть ход компьютера.')
+                    input('Нажмите Enter чтобы увидеть ход компьютера.') # просто - пауза
                     x, y = self._ai.getComputerMove(mainBoard, computerTile) # Тут ИИ нам выдаст мощный ход!
                     mainBoard.makeMove(computerTile, x, y)  # записываем ход на доску
                     if mainBoard.getValidMoves(computerTile) == []: # Если ходы кончились
@@ -62,9 +64,9 @@ class Controller:
                     else:
                         turn = 'player'
 
-            # Display the final score.
+            # Показываем результат игры.
             self._viewer.drawBoard(mainBoard)
-            self._viewer.drawFinelResults(mainBoard, playerTile, computerTile)
+            self._viewer.drawFinalResults(mainBoard, playerTile, computerTile)
             if not self._viewer.playAgain():
                 ex = True
         self._viewer.buy()

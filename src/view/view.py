@@ -1,26 +1,28 @@
 class View:
+
+    # Класс - Viewer - взаимодействие с пользователем и отображение на экране
+
     def __init__(self):
-        self.showHints = False
+        self.showHints = False # Подсказки ходов изначально выключены
 
     def enterPlayerTile(self):
-        # Lets the player type which tile they want to be.
-        # Returns a list with the player's tile as the first item, and the computer's tile as the second.
+        # Выбираем, за кого будет играть человек
         tile = ''
         while not (tile == 'X' or tile == 'O'):
-            print('Do you want to be X or O?')
+            print('За кого будешь играть - X или O?')
             tile = input().upper()
 
-        # the first element in the list is the player's tile, the second is the computer's tile.
+        # первый элемент - то, что выбрал человек, второй элемент - что, чем будет играть компьютер
         if tile == 'X':
             return ['X', 'O']
         else:
             return ['O', 'X']
 
     def printFirstTurn(self,turn):
-        print('The ' + turn + ' will go first.')
+        print(turn + ' - ходят первыми.')
 
     def drawBoard(self, board, validMoves = None):
-        # This function prints out the board that it was passed. Returns None.
+        # Отрисовка текущего состояния доски с подсказками
         if validMoves is None:
             validMoves = []
         HLINE = '  +---+---+---+---+---+---+---+---+'
@@ -37,16 +39,16 @@ class View:
             print(HLINE)
 
     def showPoints(self, board, playerTile, computerTile):
-        # Prints out the current score.
+        # Печатаем текущий счет
         scores = board.getScoreOfBoard()
-        print('You have %s points. The computer has %s points.' % (scores[playerTile], scores[computerTile]))
+        print('У Вас %s очков. У компьютера -  %s очков.' % (scores[playerTile], scores[computerTile]))
 
     def getPlayerMove(self,board, playerTile):
-        # Let the player type in their move.
-        # Returns the move as [x, y] (or returns the strings 'hints' or 'quit')
+        # Ждем от игрока ввода очередного хода
+        # Возвращаем ход [x, y] или 'hints' или 'quit' - для переключения показа подсказки, или выход
         DIGITS1TO8 = '1 2 3 4 5 6 7 8'.split()
         while True:
-            print('Enter your move, or type quit to end the game, or hints to turn off/on hints.')
+            print('Введите Ваш ход, или введите quit для завершения игры, или hints для включения/выключения подсказки')
             move = input().lower()
             if move == 'quit':
                 return 'quit'
@@ -61,7 +63,7 @@ class View:
                 else:
                     break
             else:
-                print('That is not a valid move. Type the x digit (1-8), then the y digit (1-8).')
+                print('Это неправильный ход. Наберите цифру X (1-8) по горизонтали, и Y (1-8) - по вертикали.')
                 print('For example, 81 will be the top-right corner.')
 
         return [x, y]
@@ -73,18 +75,18 @@ class View:
         print('Пока, пока!')
 
     def playAgain(self):
-        # This function returns True if the player wants to play again, otherwise it returns False.
-        print('Do you want to play again? (yes or no)')
+        print('Будем играть еще раз? (yes or no)')
         return input().lower().startswith('y')
 
-    def drawFinelResults(self, board, playerTile, computerTile):
+    def drawFinalResults(self, board, playerTile, computerTile):
+        # Выводим результат игры
         scores = board.getScoreOfBoard()
 
-        print('X scored %s points. O scored %s points.' % (scores['X'], scores['O']))
+        print('X набрали %s очков. O набрали %s очков.' % (scores['X'], scores['O']))
         if scores[playerTile] > scores[computerTile]:
-            print('You beat the computer by %s points! Congratulations!' % (
+            print('Ты обыграл компьютер на %s очков! Я горд тобой!!! :)' % (
                         scores[playerTile] - scores[computerTile]))
         elif scores[playerTile] < scores[computerTile]:
-            print('You lost. The computer beat you by %s points.' % (scores[computerTile] - scores[playerTile]))
+            print('Ты проиграл. Компьютер выиграл у тебя %s очков. Я в печали... :(' % (scores[computerTile] - scores[playerTile]))
         else:
-            print('The game was a tie!')
+            print('НИЧЬЯ!')
