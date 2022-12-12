@@ -29,6 +29,7 @@ class Controller:
             turn = self.whoGoesFirst() # Тут рандом!
             self._viewer.printFirstTurn(turn)
             endGame = False
+
             while not endGame:
                 if turn == 'player':
                     # Ходит человек
@@ -47,11 +48,14 @@ class Controller:
                     elif move == 'hints':
                         self._viewer.showHints = not self._viewer.showHints
                         continue
+                    elif move == 'fake':  # для отладки
+                        mainBoard.setFake()
+                        self._viewer.drawBoard(mainBoard)
+                        turn = 'computer'
+                        continue
                     else:
                         mainBoard.makeMove(playerTile, move[0], move[1]) # Записываем ход игрока на доску
-                    if mainBoard.getValidMoves(computerTile) == []: # Если ходы кончились
-                        endGame = True
-                    else:
+                    if not mainBoard.getValidMoves(computerTile) == []: # Переход хода
                         turn = 'computer'
                 else:  # Ход компьютера
                     self._viewer.drawBoard(mainBoard)
@@ -59,10 +63,10 @@ class Controller:
                     input('Нажмите Enter чтобы увидеть ход компьютера.') # просто - пауза
                     x, y = self._ai.getComputerMove(mainBoard, computerTile) # Тут ИИ нам выдаст мощный ход!
                     mainBoard.makeMove(computerTile, x, y)  # записываем ход на доску
-                    if mainBoard.getValidMoves(computerTile) == []: # Если ходы кончились
-                        endGame = True
-                    else:
+                    if not mainBoard.getValidMoves(playerTile) == []: # Переход хода
                         turn = 'player'
+                if (mainBoard.getValidMoves(playerTile) == []) and (mainBoard.getValidMoves(computerTile) == []):
+                    endGame = True  # Больше нет доступных ходов - конец игры
 
             # Показываем результат игры.
             self._viewer.drawBoard(mainBoard)

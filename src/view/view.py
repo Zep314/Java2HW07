@@ -18,8 +18,8 @@ class View:
         else:
             return ['O', 'X']
 
-    def printFirstTurn(self,turn):
-        print(turn + ' - ходят первыми.')
+    def printFirstTurn(self,turn: str):
+        print(turn.title() + ' - ходит первым.')
 
     def drawBoard(self, board, validMoves = None):
         # Отрисовка текущего состояния доски с подсказками
@@ -54,6 +54,8 @@ class View:
                 return 'quit'
             if move == 'hints':
                 return 'hints'
+            if move == 'fake': # для отладки
+                return 'fake'
 
             if len(move) == 2 and move[0] in DIGITS1TO8 and move[1] in DIGITS1TO8:
                 x = int(move[0]) - 1
@@ -64,7 +66,7 @@ class View:
                     break
             else:
                 print('Это неправильный ход. Наберите цифру X (1-8) по горизонтали, и Y (1-8) - по вертикали.')
-                print('For example, 81 will be the top-right corner.')
+                print('Например, 81 займет самую правую верхнюю клетку.')
 
         return [x, y]
 

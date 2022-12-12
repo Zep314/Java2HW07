@@ -5,8 +5,7 @@ class Board:
     def __init__(self,board = None):
         self._board = []        # пустая доска
         if board is None:
-            for i in range(8):
-                self._board.append([' '] * 8)
+            self._board = [[' '] * 8 for _ in range(8)]
         else:                   # устанавливаем заданную позицию на доске
             self._board = [[' ' for j in range(8)] for i in range(8)]
             for x in range(8):
@@ -28,14 +27,7 @@ class Board:
 
     def getValidMoves(self,tile):
         # Возвращаем список [x, y] - таких списков, куда возможно сходить
-        validMoves = []
-
-        for x in range(8):
-            for y in range(8):
-                if self.isValidMove(tile, x, y):
-                    validMoves.append([x, y])
-        return validMoves
-#        return [[[x,y] for y in range(8) if self.isValidMove(tile, x, y)] for x in range(8)]
+        return [[x,y] for y in range(8) for x in range(8) if self.isValidMove(tile, x, y)]
 
     def isValidMove(self, tile, xStart, yStart):
         # Возвращаем False, если ход неправильный
@@ -118,5 +110,20 @@ class Board:
 
         self._board[xStart][yStart] = tile
         for x, y in tilesToFlip:
-            self._board[x][y] = tile
+            self._board[x][y] = tile  # переворачиваем клетки доски
         return True
+
+    def setFake(self):  # для отладки - чтобы быстро поставить нужную позицию на доске
+        self._board = [
+            ['X', 'O', 'X', 'X', 'X', 'X', 'X', 'X'],
+            ['O', 'O', '0', 'X', 'O', 'X', 'X', 'X'],
+            ['X', 'O', 'X', 'X', 'X', 'O', 'X', 'X'],
+            ['X', 'O', 'O', 'O', 'X', 'X', 'X', 'X'],
+            ['X', 'O', 'O', 'X', 'O', 'O', 'X', 'X'],
+            ['X', 'O', 'X', 'X', 'X', 'X', 'O', 'X'],
+            ['X', 'X', 'X', 'X', 'X', 'O', ' ', ' '],
+            ['X', 'X', 'X', 'X', 'X', 'X', 'X', 'X']
+        ]
+        for i in range(8):
+            for j in range(i+1, 8):
+                self._board[i][j], self._board[j][i] = self._board[j][i], self._board[i][j]
